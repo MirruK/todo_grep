@@ -30,7 +30,13 @@ def fetch_files() -> list[str]:
     return input_files
 
 def readchar(f, buf: list[str]) -> str:
-    return buf.pop() if len(buf) > 0 else f.read(1)
+    if(len(buf) > 0):
+        return buf.pop()
+    try:
+        c = f.read(1)
+    except:
+        c = ''
+    return c
 
 def grep_todo(file_name: str) -> list[str]:
     with open(file_name, 'r') as file:
