@@ -3,7 +3,6 @@ import os
 from functools import reduce
 from dataclasses import dataclass
 
-TOKENS: dict = {"TODO:" : 0}
 IGNORED: list[str] = [".git"]
 
 @dataclass
@@ -53,6 +52,9 @@ def readchar(f, buf: list[str]) -> str:
         c = ''
     return c
 
+def parse_priority(todo_obj: TodoData, file, file_buffer: list[str]) -> int:
+    # TODO: implement parsing priority for a todo. Eg. TODO(2) has priority 2
+    return 0
 
 def parse_todo(todo_obj: TodoData, line_num: int, file, buffer: list[str], file_buffer: list[str]) -> int:
     token = "TODO"
@@ -79,10 +81,6 @@ def parse_todo(todo_obj: TodoData, line_num: int, file, buffer: list[str], file_
     return 3
 
 
-def parse_priority(todo_obj: TodoData, file, file_buffer: list[str]) -> int:
-    return 0
-
-
 def grep_todo(file_name: str) -> list[TodoData]:
     with open(file_name, 'r') as file:
         """
@@ -93,15 +91,18 @@ def grep_todo(file_name: str) -> list[TodoData]:
                 Else if incomplete token -> push consumed chars onto buffer and goto step 1
         """
         c = 0
-        line_num = 0
+        line_num = 1
         buffer: list[str] = []
         todos: list[TodoData] = []
         file_buffer: list[str] = []
         todo_obj = TodoData(file_of_origin=file_name)
         
         while(c != ''):
+            c = readchar(file, file_buffer)
             while(c != 'T'):
+                if(c == ''): return todos
                 c = readchar(file, buffer)
+                if(c == ''): return todos
                 if(c == '\n'):
                     line_num += 1
             result = parse_todo(todo_obj, line_num, file, buffer, file_buffer)
@@ -120,7 +121,6 @@ def grep_todo(file_name: str) -> list[TodoData]:
                 case 3:
                     # indicates failed parsing
                     todo_obj = TodoData(file_of_origin=file_name)
-
     return todos
 
 
